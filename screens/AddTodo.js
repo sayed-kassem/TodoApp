@@ -9,13 +9,43 @@ import {
   StatusBar,
 } from "react-native";
 import { useState } from "react";
-//import DateTimePicker from "@react-native-community/datetimepicker";
+import {TimePicker} from "react-native-simple-time-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodoReducer } from "../redux/todosSlice";
+import { useNavigation } from "@react-navigation/native";
+
 export default function AddTodo() {
   const [name, setName] = useState("");
   const [date, setDate] = useState(new Date());
   const [isToday, setIsToday] = useState(false);
 
-   const addTodo = () =>{}
+  const[hours, setHours] = useState("0");
+  const [minutes,setMinutes] = useState("0");
+
+
+
+  const listTodos = useSelector(state=>state.todos.todos)
+  const dispatch = useDispatch();
+  const navigation = useNavigation()
+   const addTodo = async () =>{
+    const newTodo = {
+      id: Math.floor(Math.random()*1000000),
+      text: name,
+      hour: date.toString(),
+      isToday:isToday,
+      isCompleted: false,
+    }
+
+    try {
+      await AsyncStorage.setItem("@Todos", JSON.stringify([...listTodos,newTodo]));
+      dispatch(addTodoReducer(newTodo));
+      console.log('Todo saved correctly!')
+      navigation.goBack();
+    }catch(e){
+      console.log(e)
+    }
+   }
 
   return (
     <View style={styles.container}>
@@ -31,13 +61,15 @@ export default function AddTodo() {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Hour</Text>
-        {/* <DateTimePicker
-          value={date}
-          mode={'time'}
-          is24Hour={true}
-          onChange={(event, selectedDate) => setDate(selectedDate)}
-          style={{ width: "80%" }}
-        /> */}
+        <TimePicker
+        selectedHours={hours}
+        selectedMinutes={minutes}
+        onChange={(h,m)=>{
+          const dateString = `${h}:${m}`
+          setDate(dateString)
+        }}
+          date={date}
+        />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Today</Text>
