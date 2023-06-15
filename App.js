@@ -5,12 +5,14 @@ import AddTodo from "./screens/AddTodo";
 
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
+import { PaperProvider } from 'react-native-paper';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <Provider store={store}>
+      <PaperProvider>
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
@@ -25,6 +27,7 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </PaperProvider>
     </Provider>
   );
 }

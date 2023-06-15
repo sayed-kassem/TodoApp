@@ -8,44 +8,65 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { useState } from "react";
-import {TimePicker} from "react-native-simple-time-picker";
+import { useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import { addTodoReducer } from "../redux/todosSlice";
 import { useNavigation } from "@react-navigation/native";
 
+import { TimePickerModal } from "react-native-paper-dates";
+import { Button } from "react-native";
+
 export default function AddTodo() {
   const [name, setName] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(null);
   const [isToday, setIsToday] = useState(false);
 
-  const[hours, setHours] = useState("0");
-  const [minutes,setMinutes] = useState("0");
+  // const[hours, setHours] = useState("0");
+  // const [minutes,setMinutes] = useState("0");
 
-
-
-  const listTodos = useSelector(state=>state.todos.todos)
+  const listTodos = useSelector((state) => state.todos.todos);
   const dispatch = useDispatch();
-  const navigation = useNavigation()
-   const addTodo = async () =>{
+  const navigation = useNavigation();
+  const addTodo = async () => {
     const newTodo = {
-      id: Math.floor(Math.random()*1000000),
+      id: Math.floor(Math.random() * 1000000),
       text: name,
       hour: date.toString(),
-      isToday:isToday,
+      isToday: isToday,
       isCompleted: false,
-    }
+    };
 
     try {
-      await AsyncStorage.setItem("@Todos", JSON.stringify([...listTodos,newTodo]));
+      await AsyncStorage.setItem(
+        "@Todos",
+        JSON.stringify([...listTodos, newTodo])
+      );
       dispatch(addTodoReducer(newTodo));
-      console.log('Todo saved correctly!')
+      console.log("Todo saved correctly!");
       navigation.goBack();
-    }catch(e){
-      console.log(e)
+    } catch (e) {
+      console.log(e);
     }
-   }
+  };
+
+  const [visible, setVisible] = useState(false);
+  const onDismiss = useCallback(() => {
+    setVisible(false);
+  }, [setVisible]);
+
+  const onConfirm = useCallback(
+    ({ hours, minutes }) => {
+      setVisible(false);
+      console.log({ hours, minutes });
+      const currentTime = new Date();
+      currentTime.setHours(hours %12);
+      currentTime.setMinutes(minutes);
+      console.log(currentTime)
+      setDate(currentTime);
+    },
+    [setVisible]
+  );
 
   return (
     <View style={styles.container}>
@@ -61,26 +82,71 @@ export default function AddTodo() {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Hour</Text>
-        <TimePicker
+        {!visible && !date && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#000",
+              alignItems: "center",
+              justifyContent: "center",
+              height:40,
+              paddingHorizontal:10,
+              borderRadius:5,
+              backgroundColor: "#000000",
+            }}
+            onPress={() => setVisible(true)}
+          ><Text style={{color:'#fff'}}>
+            Set Time
+          </Text>
+          </TouchableOpacity>
+        )}
+
+        {!visible && date && (
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#000",
+              alignItems: "center",
+              justifyContent: "center",
+              height:40,
+              paddingHorizontal:10,
+              borderRadius:5,
+              backgroundColor: "#000000",
+            }}
+            onPress={() => setVisible(true)}
+          ><Text style={{color:'#fff'}}>
+            {}
+          </Text>
+          </TouchableOpacity>
+        )}
+
+        {/* <TimeInput
         selectedHours={hours}
         selectedMinutes={minutes}
         onChange={(h,m)=>{
           const dateString = `${h}:${m}`
-          setDate(dateString)
+          setDate(new Date(dateString))
+          console.log(new Date(`${h}:${m}`))
         }}
           date={date}
+        /> */}
+        <TimePickerModal
+          visible={visible}
+          onDismiss={onDismiss}
+          onConfirm={onConfirm}
+          hours={12}
+          minutes={0}
         />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Today</Text>
         <Switch value={isToday} onValueChange={(value) => setIsToday(value)} />
-
-        
       </View>
       <TouchableOpacity onPress={addTodo} style={styles.button}>
-          <Text style={{ color: "white" }}>Done</Text>
-        </TouchableOpacity>
-        <Text style={{color:"#00000060"}}> if you disable today, the task will be considered as tomorrow </Text>
+        <Text style={{ color: "white" }}>Done</Text>
+      </TouchableOpacity>
+      <Text style={{ color: "#00000060" }}>
+        {" "}
+        if you disable today, the task will be considered as tomorrow{" "}
+      </Text>
     </View>
   );
 }

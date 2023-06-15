@@ -12,13 +12,21 @@ import TodosList from "../components/TodosList";
 import { todosData } from "../data/todos";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import {useDispatch, useSelector} from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {hideCompletedReducer,setTodosReducer} from "../redux/todosSlice"
+
+
 
 export default function Home() {
-  const [localData, setLocalData] = useState(
-    todosData.sort((a, b) => {
-      return b.isCompleted - a.isCompleted;
-    })
-  );
+
+  const todos = useSelector((state)=>state.todos.todos)
+
+  // const [localData, setLocalData] = useState(
+  //   todosData.sort((a, b) => {
+  //     return b.isCompleted - a.isCompleted;
+  //   })
+  // );
 
   const [isHidden, setIsHidden] = useState(false);
 
@@ -26,17 +34,17 @@ export default function Home() {
 
 
   const handleHiddenPress = () => {
-    if (isHidden) {
-      setIsHidden(false);
-      setLocalData(
-        todosData.sort((a, b) => {
-          return b.isCompleted - a.isCompleted;
-        })
-      );
-      return;
-    }
-    setIsHidden(!isHidden);
-    setLocalData(localData.filter((todo) => !todo.isCompleted));
+    // if (isHidden) {
+    //   setIsHidden(false);
+    //   setLocalData(
+    //     todosData.sort((a, b) => {
+    //       return b.isCompleted - a.isCompleted;
+    //     })
+    //   );
+    //   return;
+    // }
+    // setIsHidden(!isHidden);
+    // setLocalData(localData.filter((todo) => !todo.isCompleted));
   };
 
   return (
@@ -63,12 +71,12 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-      <TodosList todosData={localData.filter((todo) => todo.isToday)} />
+      <TodosList todosData={todos.filter((todo) => todo.isToday)} />
 
       {/* Tomorrow section  */}
       <Text style={styles.title}>Tomorrow</Text>
       <TodosList
-        todosData={todosData.filter((todo) => todo.isToday !== true)}
+        todosData={todos.filter((todo) => todo.isToday !== true)}
       />
 
       <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("Add")}>
