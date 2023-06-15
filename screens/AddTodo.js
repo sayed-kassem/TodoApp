@@ -16,10 +16,11 @@ import { useNavigation } from "@react-navigation/native";
 
 import { TimePickerModal } from "react-native-paper-dates";
 import { Button } from "react-native";
+import moment from "moment";
 
 export default function AddTodo() {
   const [name, setName] = useState("");
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState([]);
   const [isToday, setIsToday] = useState(false);
 
   // const[hours, setHours] = useState("0");
@@ -32,7 +33,7 @@ export default function AddTodo() {
     const newTodo = {
       id: Math.floor(Math.random() * 1000000),
       text: name,
-      hour: date.toString(),
+      hour: date,
       isToday: isToday,
       isCompleted: false,
     };
@@ -57,13 +58,14 @@ export default function AddTodo() {
 
   const onConfirm = useCallback(
     ({ hours, minutes }) => {
-      setVisible(false);
-      console.log({ hours, minutes });
       const currentTime = new Date();
-      currentTime.setHours(hours %12);
+      setVisible(false);
+      //console.log({ hours, minutes });
+      currentTime.setHours(hours);
       currentTime.setMinutes(minutes);
-      console.log(currentTime)
-      setDate(currentTime);
+      const finalDate = currentTime.toLocaleTimeString('en-Us',{timeZone:"Asia/Beirut", hour12: true, hour: "numeric", minute: "numeric" });
+      setDate(finalDate);
+      
     },
     [setVisible]
   );
@@ -82,39 +84,37 @@ export default function AddTodo() {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Hour</Text>
-        {!visible && !date && (
+        {!visible && date.length==0 && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
               alignItems: "center",
               justifyContent: "center",
-              height:40,
-              paddingHorizontal:10,
-              borderRadius:5,
+              height: 40,
+              paddingHorizontal: 10,
+              borderRadius: 5,
               backgroundColor: "#000000",
             }}
             onPress={() => setVisible(true)}
-          ><Text style={{color:'#fff'}}>
-            Set Time
-          </Text>
+          >
+            <Text style={{ color: "#fff" }}>Set Time</Text>
           </TouchableOpacity>
         )}
 
-        {!visible && date && (
+        {!visible && date.length>0 && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
               alignItems: "center",
               justifyContent: "center",
-              height:40,
-              paddingHorizontal:10,
-              borderRadius:5,
+              height: 40,
+              paddingHorizontal: 10,
+              borderRadius: 5,
               backgroundColor: "#000000",
             }}
             onPress={() => setVisible(true)}
-          ><Text style={{color:'#fff'}}>
-            {}
-          </Text>
+          >
+            <Text style={{ color: "#fff" }}>{date}</Text>
           </TouchableOpacity>
         )}
 
@@ -132,8 +132,8 @@ export default function AddTodo() {
           visible={visible}
           onDismiss={onDismiss}
           onConfirm={onConfirm}
-          hours={12}
-          minutes={0}
+          hours={new Date().getHours()}
+          minutes={new Date().getMinutes()}
         />
       </View>
       <View style={styles.inputContainer}>

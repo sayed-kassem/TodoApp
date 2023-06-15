@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import TodosList from "../components/TodosList";
 import { todosData } from "../data/todos";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {useDispatch, useSelector} from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,6 +32,21 @@ export default function Home() {
 
   const navigation = useNavigation()
 
+  const dispatch = useDispatch()
+  useEffect(()=>{
+    const getTodos = async () =>{
+      try{
+        const todos = await AsyncStorage.getItem("@Todos");
+        if(todos !== null){
+        dispatch(setTodosReducer(JSON.parse(todos)));
+        }
+      }catch(e){
+        console.log(e)
+      }
+      //await AsyncStorage.clear()
+    }
+    getTodos()
+  },[])
 
   const handleHiddenPress = () => {
     // if (isHidden) {
