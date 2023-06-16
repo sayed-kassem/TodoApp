@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import TodosList from "../components/TodosList";
-import { todosData } from "../data/todos";
+//import { todosData } from "../data/todos";
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {useDispatch, useSelector} from "react-redux";
@@ -48,9 +48,19 @@ export default function Home() {
     getTodos()
   },[])
 
-  const handleHiddenPress = () => {
-    // if (isHidden) {
-    //   setIsHidden(false);
+  const handleHiddenPress = async () => {
+
+     if (isHidden) {
+       setIsHidden(false);
+       const todos = await AsyncStorage.getItem("@Todos");
+      if (todos !== null) {
+        dispatch(setTodosReducer(JSON.parse(todos)))
+      }
+      return;
+     }
+     setIsHidden(true);
+     dispatch(hideCompletedReducer());
+
     //   setLocalData(
     //     todosData.sort((a, b) => {
     //       return b.isCompleted - a.isCompleted;

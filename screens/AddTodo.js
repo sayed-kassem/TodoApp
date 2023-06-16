@@ -67,7 +67,7 @@ export default function AddTodo() {
       setDate(finalDate);
       
     },
-    [setVisible]
+    [setVisible, setDate]
   );
 
   return (
