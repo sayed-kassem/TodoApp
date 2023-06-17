@@ -15,13 +15,13 @@ import { addTodoReducer } from "../redux/todosSlice";
 import { useNavigation } from "@react-navigation/native";
 
 import { TimePickerModal } from "react-native-paper-dates";
-import { Button } from "react-native";
-import moment from "moment";
+import { scheduleNotificationAsync } from "expo-notifications";
 
 export default function AddTodo() {
   const [name, setName] = useState("");
   const [date, setDate] = useState([]);
   const [isToday, setIsToday] = useState(false);
+  const [withAlert, setWithAlert] = useState(false);
 
   // const[hours, setHours] = useState("0");
   // const [minutes,setMinutes] = useState("0");
@@ -33,7 +33,7 @@ export default function AddTodo() {
     const newTodo = {
       id: Math.floor(Math.random() * 1000000),
       text: name,
-      hour: date,
+      hour: isToday ? date : new Date(date).getDate() + 24 * 60 * 60 * 1000,
       isToday: isToday,
       isCompleted: false,
     };
@@ -45,6 +45,9 @@ export default function AddTodo() {
       );
       dispatch(addTodoReducer(newTodo));
       console.log("Todo saved correctly!");
+      if (withAlert) {
+        await scheduleNotificationAsync(newTodo);
+      }
       navigation.goBack();
     } catch (e) {
       console.log(e);
@@ -63,12 +66,32 @@ export default function AddTodo() {
       //console.log({ hours, minutes });
       currentTime.setHours(hours);
       currentTime.setMinutes(minutes);
-      const finalDate = currentTime.toLocaleTimeString('en-Us',{timeZone:"Asia/Beirut", hour12: true, hour: "numeric", minute: "numeric" });
+      const finalDate = currentTime.toLocaleTimeString("en-Us", {
+        timeZone: "Asia/Beirut",
+        hour12: true,
+        hour: "numeric",
+        minute: "numeric",
+      });
       setDate(finalDate);
-      
     },
     [setVisible, setDate]
   );
+
+  const scheduleTodoNotification = async (todo) => {
+    const trigger = todo.hour;
+    try {
+      await scheduleNotificationAsync({
+        content: {
+          title: "It's time!",
+          body: todo.text,
+        },
+        trigger,
+      });
+      console.log("Notification was scheduled!");
+    } catch (e) {
+      alert("The notification failed to schedule, make sure the hour is valid");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -84,7 +107,7 @@ export default function AddTodo() {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Hour</Text>
-        {!visible && date.length==0 && (
+        {!visible && date.length == 0 && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
@@ -101,7 +124,7 @@ export default function AddTodo() {
           </TouchableOpacity>
         )}
 
-        {!visible && date.length>0 && (
+        {!visible && date.length > 0 && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
@@ -136,17 +159,32 @@ export default function AddTodo() {
           minutes={new Date().getMinutes()}
         />
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputTitle}>Today</Text>
+      <View style={[styles.inputContainer, { alignItems: "center" }]}>
+        <View>
+          <Text style={styles.inputTitle}>Today</Text>
+          <Text style={{ color: "#00000060", fontSize: 12, maxWidth: "85%" }}>
+            if you disable today, the task will be considered as tomorrow{" "}
+          </Text>
+        </View>
         <Switch value={isToday} onValueChange={(value) => setIsToday(value)} />
       </View>
+
+      <View style={[styles.inputContainer, { alignItems: "center" }]}>
+        <View>
+          <Text style={styles.inputTitle}>Alert</Text>
+          <Text style={{ color: "#00000060", maxWidth: "85%", fontSize: 12 }}>
+            You will receive an alert at the time you set this reminder
+          </Text>
+        </View>
+        <Switch
+          value={withAlert}
+          onValueChange={(value) => setWithAlert(value)}
+        />
+      </View>
+
       <TouchableOpacity onPress={addTodo} style={styles.button}>
         <Text style={{ color: "white" }}>Done</Text>
       </TouchableOpacity>
-      <Text style={{ color: "#00000060" }}>
-        {" "}
-        if you disable today, the task will be considered as tomorrow{" "}
-      </Text>
     </View>
   );
 }
