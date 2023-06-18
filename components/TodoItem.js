@@ -5,7 +5,9 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteTodoReducer } from "../redux/todosSlice";
+import moment from "moment";
 export default function TodoItem({ id, text, isCompleted, isToday, hour }) {
+  const [thisTodoIsToday, setThisTodoIsToday] = hour ? useState(moment.utc(moment(hour)).local().isSame(moment().utc().local(),"day")) : useState(false)
   const [localHour, setLocalHour] = useState(new Date(hour).toLocaleTimeString("en-US", {
     timeZone: "Asia/Beirut",
     hour12: true,
@@ -37,7 +39,7 @@ export default function TodoItem({ id, text, isCompleted, isToday, hour }) {
           id={id}
           text={text}
           isCompleted={isCompleted}
-          isToday={isToday}
+          isToday={thisTodoIsToday}
           hour={hour}
         />
         <View>

@@ -25,6 +25,8 @@ import {
   setNotificationChannelAsync,
 } from "expo-notifications";
 
+import moment from "moment/moment";
+
 setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -43,18 +45,30 @@ export default function Home() {
   // );
 
   const [isHidden, setIsHidden] = useState(false);
-  const[expoPushToken,setExpoPushtoken] = useState('')
+  const [expoPushToken, setExpoPushtoken] = useState("");
   const navigation = useNavigation();
 
   const dispatch = useDispatch();
   useEffect(() => {
-    registerForPushNotificationsAsync().then(token=>setExpoPushtoken(token))
+    //registerForPushNotificationsAsync().then(token=>setExpoPushtoken(token))
     const getTodos = async () => {
       try {
         const todos = await AsyncStorage.getItem("@Todos");
         if (todos !== null) {
-          dispatch(setTodosReducer(JSON.parse(todos)));
+          const todosData = JSON.parse(todos);
+          const todosDataFiltered = todosData.filter((todo) => {
+            return moment.utc(moment(todo.hour)).local().isSameOrAfter(moment().utc().local(), 'day')
+          });
+          if(todosDataFiltered !== null){
+          await AsyncStorage.setItem(
+            "@Todos",
+            JSON.stringify(todosDataFiltered)
+          );
+          console.log("we delete some passed todos");
+          console.log(todosDataFiltered);
+          dispatch(setTodosReducer(todosDataFiltered));
         }
+      }
       } catch (e) {
         console.log(e);
       }
@@ -139,11 +153,11 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-      <TodosList todosData={todos.filter((todo) => todo.isToday)} />
+      <TodosList todosData={todos.filter((todo) => moment.utc(moment(todo.hour)).local().isSame(moment().utc().local(),'day'))} />
 
       {/* Tomorrow section  */}
       <Text style={styles.title}>Tomorrow</Text>
-      <TodosList todosData={todos.filter((todo) => todo.isToday !== true)} />
+      <TodosList todosData={todos.filter((todo) => moment.utc(moment(todo.hour)).local().isAfter(moment().utc().local(),'day'))} />
 
       <TouchableOpacity
         style={styles.button}

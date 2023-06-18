@@ -23,9 +23,6 @@ export default function AddTodo() {
   const [isToday, setIsToday] = useState(false);
   const [withAlert, setWithAlert] = useState(false);
 
-  // const[hours, setHours] = useState("0");
-  // const [minutes,setMinutes] = useState("0");
-
   const listTodos = useSelector((state) => state.todos.todos);
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -39,15 +36,8 @@ export default function AddTodo() {
     ({ hours, minutes }) => {
       const currentTime = new Date();
       setVisible(false);
-      //console.log({ hours, minutes });
       currentTime.setHours(hours);
       currentTime.setMinutes(minutes);
-      // const timeDate = currentTime.toLocaleTimeString("en-Us", {
-      //   timeZone: "Asia/Beirut",
-      //   hour12: true,
-      //   hour: "numeric",
-      //   minute: "numeric",
-      // });
       setDate(currentTime);
     },
     [setVisible]
@@ -71,7 +61,6 @@ export default function AddTodo() {
   };
 
   const addTodo = async () => {
-    //nextDay.setDate(nextDay.getDay()+1);
     const newTodo = {
       id: Math.floor(Math.random() * 1000000),
       text: name,
@@ -153,16 +142,6 @@ export default function AddTodo() {
           </TouchableOpacity>
         )}
 
-        {/* <TimeInput
-        selectedHours={hours}
-        selectedMinutes={minutes}
-        onChange={(h,m)=>{
-          const dateString = `${h}:${m}`
-          setDate(new Date(dateString))
-          console.log(new Date(`${h}:${m}`))
-        }}
-          date={date}
-        /> */}
         <TimePickerModal
           visible={visible}
           onDismiss={onDismiss}
