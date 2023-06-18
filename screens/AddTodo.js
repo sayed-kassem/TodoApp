@@ -19,7 +19,7 @@ import { scheduleNotificationAsync } from "expo-notifications";
 
 export default function AddTodo() {
   const [name, setName] = useState("");
-  const [date, setDate] = useState([]);
+  const [date, setDate] = useState();
   const [isToday, setIsToday] = useState(false);
   const [withAlert, setWithAlert] = useState(false);
 
@@ -29,30 +29,6 @@ export default function AddTodo() {
   const listTodos = useSelector((state) => state.todos.todos);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const addTodo = async () => {
-    const newTodo = {
-      id: Math.floor(Math.random() * 1000000),
-      text: name,
-      hour: isToday ? date : new Date(date).getDate() + 24 * 60 * 60 * 1000,
-      isToday: isToday,
-      isCompleted: false,
-    };
-
-    try {
-      await AsyncStorage.setItem(
-        "@Todos",
-        JSON.stringify([...listTodos, newTodo])
-      );
-      dispatch(addTodoReducer(newTodo));
-      console.log("Todo saved correctly!");
-      if (withAlert) {
-        await scheduleNotificationAsync(newTodo);
-      }
-      navigation.goBack();
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   const [visible, setVisible] = useState(false);
   const onDismiss = useCallback(() => {
@@ -66,19 +42,20 @@ export default function AddTodo() {
       //console.log({ hours, minutes });
       currentTime.setHours(hours);
       currentTime.setMinutes(minutes);
-      const finalDate = currentTime.toLocaleTimeString("en-Us", {
-        timeZone: "Asia/Beirut",
-        hour12: true,
-        hour: "numeric",
-        minute: "numeric",
-      });
-      setDate(finalDate);
+      // const timeDate = currentTime.toLocaleTimeString("en-Us", {
+      //   timeZone: "Asia/Beirut",
+      //   hour12: true,
+      //   hour: "numeric",
+      //   minute: "numeric",
+      // });
+      setDate(currentTime);
     },
-    [setVisible, setDate]
+    [setVisible]
   );
 
   const scheduleTodoNotification = async (todo) => {
-    const trigger = todo.hour;
+    const trigger = todo.hour; //check trigger why not triggering
+    console.log(trigger);
     try {
       await scheduleNotificationAsync({
         content: {
@@ -90,6 +67,32 @@ export default function AddTodo() {
       console.log("Notification was scheduled!");
     } catch (e) {
       alert("The notification failed to schedule, make sure the hour is valid");
+    }
+  };
+
+  const addTodo = async () => {
+    //nextDay.setDate(nextDay.getDay()+1);
+    const newTodo = {
+      id: Math.floor(Math.random() * 1000000),
+      text: name,
+      hour: date.toISOString() , // add tomorrow to it and check trigger
+      isToday: isToday,
+      isCompleted: false,
+    };
+    try {
+      await AsyncStorage.setItem(
+        "@Todos",
+        JSON.stringify([...listTodos, newTodo])
+      );
+      dispatch(addTodoReducer(newTodo));
+      console.log("Todo saved correctly!");
+      if (withAlert) {
+        await scheduleTodoNotification(newTodo);
+      }
+      //console.log(nextdate)
+      navigation.goBack();
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -107,7 +110,7 @@ export default function AddTodo() {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.inputTitle}>Hour</Text>
-        {!visible && date.length == 0 && (
+        {!visible && !date && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
@@ -124,7 +127,7 @@ export default function AddTodo() {
           </TouchableOpacity>
         )}
 
-        {!visible && date.length > 0 && (
+        {!visible && date && (
           <TouchableOpacity
             style={{
               backgroundColor: "#000",
@@ -137,7 +140,16 @@ export default function AddTodo() {
             }}
             onPress={() => setVisible(true)}
           >
-            <Text style={{ color: "#fff" }}>{date}</Text>
+            <Text style={{ color: "#fff" }}>{
+
+            date.toLocaleTimeString("en-Us", {
+              timeZone: "Asia/Beirut",
+              hour12: true,
+              hour: "numeric",
+              minute: "numeric",
+            })
+          }
+      </Text>
           </TouchableOpacity>
         )}
 
