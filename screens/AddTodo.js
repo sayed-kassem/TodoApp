@@ -54,7 +54,7 @@ export default function AddTodo() {
   );
 
   const scheduleTodoNotification = async (todo) => {
-    const trigger = todo.hour; //check trigger why not triggering
+    const trigger = new Date(todo.hour); 
     console.log(trigger);
     try {
       await scheduleNotificationAsync({
@@ -75,7 +75,7 @@ export default function AddTodo() {
     const newTodo = {
       id: Math.floor(Math.random() * 1000000),
       text: name,
-      hour: date.toISOString() , // add tomorrow to it and check trigger
+      hour: isToday? date.toISOString() : new Date(date.getTime() + 24 * 60 * 60 * 1000).toISOString() , // add tomorrow to it and check trigger
       isToday: isToday,
       isCompleted: false,
     };

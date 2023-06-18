@@ -12,15 +12,29 @@ import TodosList from "../components/TodosList";
 //import { todosData } from "../data/todos";
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {hideCompletedReducer,setTodosReducer} from "../redux/todosSlice"
+import { hideCompletedReducer, setTodosReducer } from "../redux/todosSlice";
 
+import { Device } from "expo-device";
+import {
+  setNotificationHandler,
+  getPermissionsAsync,
+  requestPermissionsAsync,
+  getExpoPushTokenAsync,
+  setNotificationChannelAsync,
+} from "expo-notifications";
 
+setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export default function Home() {
-
-  const todos = useSelector((state)=>state.todos.todos)
+  const todos = useSelector((state) => state.todos.todos);
 
   // const [localData, setLocalData] = useState(
   //   todosData.sort((a, b) => {
@@ -29,37 +43,37 @@ export default function Home() {
   // );
 
   const [isHidden, setIsHidden] = useState(false);
+  const[expoPushToken,setExpoPushtoken] = useState('')
+  const navigation = useNavigation();
 
-  const navigation = useNavigation()
-
-  const dispatch = useDispatch()
-  useEffect(()=>{
-    const getTodos = async () =>{
-      try{
+  const dispatch = useDispatch();
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token=>setExpoPushtoken(token))
+    const getTodos = async () => {
+      try {
         const todos = await AsyncStorage.getItem("@Todos");
-        if(todos !== null){
-        dispatch(setTodosReducer(JSON.parse(todos)));
+        if (todos !== null) {
+          dispatch(setTodosReducer(JSON.parse(todos)));
         }
-      }catch(e){
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
       //await AsyncStorage.clear()
-    }
-    getTodos()
-  },[])
+    };
+    getTodos();
+  }, []);
 
   const handleHiddenPress = async () => {
-
-     if (isHidden) {
-       setIsHidden(false);
-       const todos = await AsyncStorage.getItem("@Todos");
+    if (isHidden) {
+      setIsHidden(false);
+      const todos = await AsyncStorage.getItem("@Todos");
       if (todos !== null) {
-        dispatch(setTodosReducer(JSON.parse(todos)))
+        dispatch(setTodosReducer(JSON.parse(todos)));
       }
       return;
-     }
-     setIsHidden(true);
-     dispatch(hideCompletedReducer());
+    }
+    setIsHidden(true);
+    dispatch(hideCompletedReducer());
 
     //   setLocalData(
     //     todosData.sort((a, b) => {
@@ -70,6 +84,35 @@ export default function Home() {
     // }
     // setIsHidden(!isHidden);
     // setLocalData(localData.filter((todo) => !todo.isCompleted));
+  };
+
+  const registerForPushNotificationsAsync = async () => {
+    // let token;
+    // if (Device.isDevice) {
+    //   const { status: existingStatus } = await getPermissionsAsync();
+    //   let finalStatus = existingStatus;
+    //   if (existingStatus !== "granted") {
+    //     const { status } = await requestPermissionsAsync();
+    //     finalStatus = status;
+    //   }
+    //   if (finalStatus !== "granted") {
+    //     alert("failed to get token for push notification");
+    //     return;
+    //   }
+    //   token = (await getExpoPushTokenAsync()).data;
+    //   console.log(token)
+    // }else{
+    //   return;
+    // }
+    // if(Platform.OS === 'android'){
+    //   setNotificationChannelAsync('default',{
+    //     name:'default',
+    //     importance: Notification.AndroidImportance.MAX,
+    //     vibrationPattern:(0,250,250,250),
+    //     lightColor:"#FF231F7C"
+    //   });
+    // }
+    // return token;
   };
 
   return (
@@ -100,11 +143,12 @@ export default function Home() {
 
       {/* Tomorrow section  */}
       <Text style={styles.title}>Tomorrow</Text>
-      <TodosList
-        todosData={todos.filter((todo) => todo.isToday !== true)}
-      />
+      <TodosList todosData={todos.filter((todo) => todo.isToday !== true)} />
 
-      <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("Add")}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("Add")}
+      >
         <Text style={styles.plus}>+</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -144,13 +188,13 @@ const styles = StyleSheet.create({
       width: 4,
       height: 4,
     },
-    shadowOpacity: .7,
+    shadowOpacity: 0.7,
     elevation: 5,
     shadowRadius: 15,
   },
   plus: {
     fontSize: 38,
-    fontWeight:"300",
+    fontWeight: "300",
     color: "#fff",
     position: "absolute",
     top: -7,
