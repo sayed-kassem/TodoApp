@@ -57,18 +57,21 @@ export default function Home() {
         if (todos !== null) {
           const todosData = JSON.parse(todos);
           const todosDataFiltered = todosData.filter((todo) => {
-            return moment.utc(moment(todo.hour)).local().isSameOrAfter(moment().utc().local(), 'day')
+            return moment
+              .utc(moment(todo.hour))
+              .local()
+              .isSameOrAfter(moment().utc().local(), "day");
           });
-          if(todosDataFiltered !== null){
-          await AsyncStorage.setItem(
-            "@Todos",
-            JSON.stringify(todosDataFiltered)
-          );
-          console.log("we delete some passed todos");
-          console.log(todosDataFiltered);
-          dispatch(setTodosReducer(todosDataFiltered));
+          if (todosDataFiltered !== null) {
+            await AsyncStorage.setItem(
+              "@Todos",
+              JSON.stringify(todosDataFiltered)
+            );
+            console.log("we delete some passed todos");
+            console.log(todosDataFiltered);
+            dispatch(setTodosReducer(todosDataFiltered));
+          }
         }
-      }
       } catch (e) {
         console.log(e);
       }
@@ -153,11 +156,98 @@ export default function Home() {
           </Text>
         </TouchableOpacity>
       </View>
-      <TodosList todosData={todos.filter((todo) => moment.utc(moment(todo.hour)).local().isSame(moment().utc().local(),'day'))} />
+      {todos.filter((todo) =>
+        moment
+          .utc(moment(todo.hour))
+          .local()
+          .isSame(moment().utc().local(), "day")
+      ) == 0 ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            flex:1
+          }}
+        >
+          <View>
+            <Image
+              source={require("../assets/cocktail.png")}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 0,
+                alignSelf: "center",
+              }}
+            />
+            <Text style={{ color: "#00000060", marginTop: 20 }}>
+              You don't have any tasks, enjoy your day
+            </Text>
+          </View>
+        </View>
+      ) : (
+        <TodosList
+          todosData={todos.filter((todo) =>
+            moment
+              .utc(moment(todo.hour))
+              .local()
+              .isSame(moment().utc().local(), "day")
+          )}
+        />
+      )}
 
       {/* Tomorrow section  */}
       <Text style={styles.title}>Tomorrow</Text>
-      <TodosList todosData={todos.filter((todo) => moment.utc(moment(todo.hour)).local().isAfter(moment().utc().local(),'day'))} />
+      {todos.filter((todo) =>
+        moment
+          .utc(moment(todo.hour))
+          .local()
+          .isAfter(moment().utc().local(), "day")
+      ).length == 0 ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            flex:1
+          }}
+        >
+          <View>
+            <Image
+              source={require("../assets/beach.png")}
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 0,
+                alignSelf: "center",
+              }}
+            />
+            <View style={{ alignItems: "center", marginTop: 20 }}>
+              <Text
+                style={{
+                  fontWeight: "700",
+                  textTransform: "capitalize",
+                  fontSize: 22,
+                }}
+              >
+                Congrats
+              </Text>
+              <Text style={{ color: "#00000060", textTransform: "capitalize" }}>
+                Nothing is scheduled for Tomorrow
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : (
+        <TodosList
+          todosData={todos.filter((todo) =>
+            moment
+              .utc(moment(todo.hour))
+              .local()
+              .isAfter(moment().utc().local(), "day")
+          )}
+        />
+      )}
 
       <TouchableOpacity
         style={styles.button}

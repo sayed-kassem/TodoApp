@@ -148,7 +148,8 @@ export default function AddTodo() {
           onConfirm={onConfirm}
           hours={new Date().getHours()}
           minutes={new Date().getMinutes()}
-        />
+          keyboardIcon={null}
+          />
       </View>
       <View style={[styles.inputContainer, { alignItems: "center" }]}>
         <View>
