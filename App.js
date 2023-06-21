@@ -1,3 +1,5 @@
+import "react-native-gesture-handler";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./screens/Home";
@@ -6,7 +8,6 @@ import AddTodo from "./screens/AddTodo";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
 import { DefaultTheme, PaperProvider } from "react-native-paper";
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
