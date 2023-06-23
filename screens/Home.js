@@ -7,6 +7,8 @@ import {
   View,
   Image,
   TouchableOpacity,
+  useWindowDimensions,
+  Pressable,
 } from "react-native";
 import TodosList from "../components/TodosList";
 //import { todosData } from "../data/todos";
@@ -16,12 +18,15 @@ import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { hideCompletedReducer, setTodosReducer } from "../redux/todosSlice";
 
+
 //bottom sheet imports
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView, Switch } from "react-native-gesture-handler";
+import { Entypo } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 
 // import { Device } from "expo-device";
 // import {
@@ -50,13 +55,20 @@ export default function Home() {
   const snapPoints = ["25%", "48%", "75%"];
   const handlePresentModal = () => {
     bottomSheetModalRef.current?.present();
+    setTimeout(() => {
+      setIsModalOpen(true);
+    }, 100);
   };
   const [darkMode, setDarkMode] = useState(false);
-  const [device,setDevice] = useState(false);
+  const [device, setDevice] = useState(false);
+  const { width } = useWindowDimensions();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [theme, setTheme] = useState("light");
   // end of it
 
-  const [isHidden, setIsHidden] = useState(false);
+  const [isHidden, setIsHidden] = useState(false); //show or hide completed state
   //const [expoPushToken, setExpoPushtoken] = useState("");
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -90,6 +102,8 @@ export default function Home() {
     getTodos();
   }, []);
 
+
+
   const handleHiddenPress = async () => {
     if (isHidden) {
       setIsHidden(false);
@@ -112,6 +126,7 @@ export default function Home() {
     // setIsHidden(!isHidden);
     // setLocalData(localData.filter((todo) => !todo.isCompleted));
   };
+
 
   // const registerForPushNotificationsAsync = async () => {
   //   // let token;
@@ -145,7 +160,18 @@ export default function Home() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView
+          style={[
+            styles.container,
+            {
+              backgroundColor: isModalOpen ? "#00000040" : "white",
+              zIndex: isModalOpen ? -1 : 0,
+            },
+            {
+              backgroundColor: theme === 'light' ? "white" : theme === "dark" ? "#000000" : "#283d5e"
+            },
+          ]}
+        >
           <TouchableOpacity onPress={handlePresentModal}>
             <Image
               source={{
@@ -163,7 +189,7 @@ export default function Home() {
               justifyContent: "space-between",
             }}
           >
-            <Text style={styles.title}>Today</Text>
+            <Text style={[styles.title, {color: theme === 'light' ? "#000000" : theme === 'dark' ? "#ffffff" : "#ffffff90" }]}>Today</Text>
             <TouchableOpacity onPress={handleHiddenPress}>
               <Text style={{ color: "#3478f6" }}>
                 {isHidden ? "Show Completed" : "Hide Completed"}
@@ -194,7 +220,7 @@ export default function Home() {
                     alignSelf: "center",
                   }}
                 />
-                <Text style={{ color: "#00000060", marginTop: 20 }}>
+                <Text style={{ color: theme === 'light' ? "#00000060" : theme === 'dark' ? "#ffffff" : "#ffffff90" , marginTop: 20 }}>
                   You don't have any tasks, enjoy your day
                 </Text>
               </View>
@@ -210,7 +236,7 @@ export default function Home() {
             />
           )}
           {/* Tomorrow section  */}
-          <Text style={styles.title}>Tomorrow</Text>
+          <Text style={[styles.title, {color: theme === 'light' ? "#000000" : theme === 'dark' ? "#ffffff" : "#ffffff90" }]}>Tomorrow</Text>
           {todos.filter((todo) =>
             moment
               .utc(moment(todo.hour))
@@ -220,7 +246,7 @@ export default function Home() {
             <View
               style={{
                 flexDirection: "row",
-                alignItems: "flex-start",
+                alignItems: "center",
                 justifyContent: "center",
                 flex: 1,
               }}
@@ -237,16 +263,7 @@ export default function Home() {
                 />
                 <View style={{ alignItems: "center", marginTop: 20 }}>
                   <Text
-                    style={{
-                      fontWeight: "700",
-                      textTransform: "capitalize",
-                      fontSize: 22,
-                    }}
-                  >
-                    Congrats
-                  </Text>
-                  <Text
-                    style={{ color: "#00000060", textTransform: "capitalize" }}
+                    style={{color: theme === 'light' ? "#00000060" : theme === 'dark' ? "#ffffff" : "#ffffff90" , textTransform: "capitalize"} }
                   >
                     Nothing is scheduled for Tomorrow
                   </Text>
@@ -275,6 +292,7 @@ export default function Home() {
             index={1}
             snapPoints={snapPoints}
             backgroundStyle={{ borderRadius: 28 }}
+            onDismiss={() => setIsModalOpen(false)}
           >
             <View style={styles.contentContainer}>
               <Text style={[styles.modalTitle, { marginBottom: 20 }]}>
@@ -282,12 +300,54 @@ export default function Home() {
               </Text>
               <View style={styles.row}>
                 <Text style={styles.modalSubTitle}>Dark Mode</Text>
-                <Switch value={darkMode} onChange={()=>setDarkMode(!darkMode)}/>
+                <Switch
+                  value={darkMode}
+                  onChange={() => {
+                    setDarkMode(!darkMode);
+                  }}
+                />
               </View>
               <View style={styles.row}>
                 <Text style={styles.modalSubTitle}>Use Device Settings</Text>
-                <Switch value={device} onChange={()=>setDevice(!device)}/>
+                <Switch value={device} onChange={() => setDevice(!device)} />
               </View>
+              <Text style={styles.description}>
+                Customize your app experience: Choose between Light and Dark
+                themes or sync with your device settings
+              </Text>
+              <View
+                style={{
+                  width: width,
+                  borderBottomWidth: StyleSheet.hairlineWidth,
+                  borderBottomColor: "gray",
+                  marginVertical: 30,
+                }}
+              />
+              <Text style={[styles.modalTitle, { width: "100%" }]}>Theme</Text>
+              <Pressable style={styles.row} onPress={() => setTheme("dim")}>
+                <Text style={styles.modalSubTitle}>Dim</Text>
+                {theme === "dim" ? (
+                  <AntDesign name="checkcircle" size={24} color="#4A98E9" />
+                ) : (
+                  <Entypo name="circle" size={24} color="#56636F" />
+                )}
+              </Pressable>
+              <Pressable style={styles.row} onPress={() => setTheme("dark")}>
+                <Text style={styles.modalSubTitle}>Dark</Text>
+                {theme === "dark" ? (
+                  <AntDesign name="checkcircle" size={24} color="#4A98E9" />
+                ) : (
+                  <Entypo name="circle" size={24} color="#56636F" />
+                )}
+              </Pressable>
+              <Pressable style={styles.row} onPress={() => setTheme("light")}>
+                <Text style={styles.modalSubTitle}>Light</Text>
+                {theme === "light" ? (
+                  <AntDesign name="checkcircle" size={24} color="#4A98E9" />
+                ) : (
+                  <Entypo name="circle" size={24} color="#56636F" />
+                )}
+              </Pressable>
             </View>
           </BottomSheetModal>
         </SafeAreaView>
@@ -322,8 +382,8 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     backgroundColor: "#000",
     position: "absolute",
-    bottom: 45,
-    right: 35,
+    bottom: 30,
+    right: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 4,
@@ -357,11 +417,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     justifyContent: "space-between",
-    marginVertical:10,
+    marginVertical: 10,
   },
   modalSubTitle: {
     color: "#101318",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  description: {
+    color: "#56636F",
+    fontSize: 13,
+    fontWeight: "normal",
+    width: "100%",
   },
 });
