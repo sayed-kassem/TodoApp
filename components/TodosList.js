@@ -1,12 +1,13 @@
-import { FlatList, View, Text } from "react-native";
+import { FlatList } from "react-native";
 
 import  Todo  from "./TodoItem";
-export default function TodosList({todosData}) {
+export default function TodosList({todosData, theme}) {
   return (
     <FlatList
       data={todosData}
       keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <Todo {...item} />}
+      renderItem={({ item }) => <Todo {...item} theme={theme}
+      />}
     />
   );
 }

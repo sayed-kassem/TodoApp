@@ -5,7 +5,7 @@ import { updateTodoReducer } from "../redux/todosSlice";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage  from "@react-native-async-storage/async-storage";
 
-export default function Checkbox({ id, text, isCompleted, isToday, hour }) {
+export default function Checkbox({ id, text, isCompleted, isToday, hour, theme }) {
 
   const dispatch = useDispatch();
   const  listTodos = useSelector(state=>state.todos.todos);
@@ -34,7 +34,7 @@ export default function Checkbox({ id, text, isCompleted, isToday, hour }) {
   )
   :
   (
-    <View style={styles.isToday}/>
+    <View style={[styles.isToday, theme==="light" ? {backgroundColor:"#262626"}: {backgroundColor:"white"}]}/>
   );
 }
 const styles = StyleSheet.create({
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   isToday:{
     width:10,height:10,
     borderRadius:10,
-    backgroundColor:"#262626",
+    backgroundColor: "#262626",
     marginRight:13,
     marginLeft:15
   }

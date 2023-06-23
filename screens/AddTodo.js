@@ -89,9 +89,9 @@ export default function AddTodo({route}) {
   const theme = route.params.theme;
   return (
     <View style={[styles.container, {backgroundColor: theme === 'light' ? "white" : theme === 'dark' ? "black" : "#283d5e"}]}>
-      <Text style={[styles.title, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Add Task</Text>
+      <Text style={[styles.title, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "white"}]}>Add Task</Text>
       <View style={styles.inputContainer}>
-        <Text style={[styles.inputTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Name</Text>
+        <Text style={[styles.inputTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "white"}]}>Name</Text>
         <TextInput
           style={[styles.textInput, {borderBottomColor: theme === 'light' ? "#00000060" : theme === 'dark' ? "#ffffff70" : "#ffffff70"}, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}
           placeholder="Task"
@@ -104,7 +104,7 @@ export default function AddTodo({route}) {
         {!visible && !date && (
           <TouchableOpacity
             style={{
-              backgroundColor: theme === 'light' ? "black" : theme === 'dark' ? "white" : "gray",
+              backgroundColor: theme === 'light' ? "black" : theme === 'dark' ? "white" : "white",
               alignItems: "center",
               justifyContent: "center",
               height: 40,
@@ -114,7 +114,7 @@ export default function AddTodo({route}) {
             }}
             onPress={() => setVisible(true)}
           >
-            <Text style={{color: theme === 'light' ? "white" : theme === 'dark' ? "black" : "white"}}>Set Time</Text>
+            <Text style={{color: theme === 'light' ? "white" : theme === 'dark' ? "black" : "black"}}>Set Time</Text>
           </TouchableOpacity>
         )}
 
@@ -127,11 +127,11 @@ export default function AddTodo({route}) {
               height: 40,
               paddingHorizontal: 10,
               borderRadius: 5,
-              backgroundColor: "#000000",
+              backgroundColor:  theme === 'light' ? "black" : theme === 'dark' ? "white" : "white",
             }}
             onPress={() => setVisible(true)}
           >
-            <Text style={{color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}}>{
+            <Text style={{color: theme === 'light' ? "white" : theme === 'dark' ? "black" : "black"}}>{
 
             date.toLocaleTimeString("en-Us", {
               timeZone: "Asia/Beirut",
@@ -151,6 +151,7 @@ export default function AddTodo({route}) {
           hours={new Date().getHours()}
           minutes={new Date().getMinutes()}
           keyboardIcon={null}
+          
           />
       </View>
       <View style={[styles.inputContainer, { alignItems: "center" }]}>

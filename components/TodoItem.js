@@ -6,7 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteTodoReducer } from "../redux/todosSlice";
 import moment from "moment";
-export default function TodoItem({ id, text, isCompleted, isToday, hour }) {
+import { color } from "react-native-reanimated";
+export default function TodoItem({ id, text, isCompleted, isToday, hour, theme }) {
   const [thisTodoIsToday, setThisTodoIsToday] = hour ? useState(moment.utc(moment(hour)).local().isSame(moment().utc().local(),"day")) : useState(false)
   const [localHour, setLocalHour] = useState(new Date(hour).toLocaleTimeString("en-US", {
     timeZone: "Asia/Beirut",
@@ -41,36 +42,39 @@ export default function TodoItem({ id, text, isCompleted, isToday, hour }) {
           isCompleted={isCompleted}
           isToday={thisTodoIsToday}
           hour={hour}
+          theme={theme}
         />
         <View>
           <Text
-            style={
+            style={[
+              theme === 'dark'? {color:'white'}:{color:'gray'},
               isCompleted
                 ? [
                     styles.text,
-                    { textDecorationLine: "line-through", color: "#73737330" },
+                    { textDecorationLine: "line-through", color: "gray" },
                   ]
                 : styles.text
-            }
+            ]}
           >
             {text}
           </Text>
           <Text
-            style={
+            style={[
+              theme === 'dark'? {color:'white'}:{color:'gray'},
               isCompleted
                 ? [
                     styles.time,
-                    { textDecorationLine: "line-through", color: "#73737330" },
+                    { textDecorationLine: "line-through", color: "gray" },
                   ]
                 : styles.time
-            }
+            ]}
           >
             {localHour}
           </Text>
         </View>
       </View>
       <TouchableOpacity onPress={handleDeleteTodo}>
-        <MaterialIcons name="delete-outline" size={24} color="#73737350" />
+        <MaterialIcons name="delete-outline" size={24} color="gray" />
       </TouchableOpacity>
     </View>
   );
@@ -86,7 +90,6 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#737373",
   },
   time: {
     fontSize: 13,

@@ -27,6 +27,8 @@ import {
 import { GestureHandlerRootView, Switch } from "react-native-gesture-handler";
 import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import { useColorScheme } from "react-native";
+
 
 // import { Device } from "expo-device";
 // import {
@@ -38,6 +40,7 @@ import { AntDesign } from "@expo/vector-icons";
 // } from "expo-notifications";
 
 import moment from "moment/moment";
+import { BackHandler } from "react-native";
 
 // setNotificationHandler({
 //   handleNotification: async () => ({
@@ -64,6 +67,7 @@ export default function Home() {
   const { width } = useWindowDimensions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [theme, setTheme] = useState("light");
+  const colorScheme = useColorScheme();
   // end of it
 
   const [isHidden, setIsHidden] = useState(false); //show or hide completed state
@@ -99,7 +103,23 @@ export default function Home() {
       }
       //await AsyncStorage.clear()
     };
+
+    const getThemes = async () => {
+      try{
+        const themes = await AsyncStorage.getItem("@Themes")
+        if(themes !== null){
+          const themesData = JSON.parse(themes);
+          console.log(themesData);
+          setDarkMode(themesData.darkMode)
+          setDevice(themesData.device)
+          setTheme(themesData.theme)
+        }
+      }catch(e){
+        console.log(e)
+      }
+    }
     getTodos();
+    getThemes();
   }, []);
 
 
@@ -128,17 +148,32 @@ export default function Home() {
   };
 
   useEffect(()=>{
-      if(darkMode){
+      if(darkMode && theme!=='dim'){
         setTheme("dark");
         return;
       }
       else{
         setTheme('light');
         setDarkMode(false);
+        setDevice(false)
         return;
       }
   }, [darkMode])
 
+  useEffect(()=>{
+    if(device===true){
+    if(colorScheme === 'dark'){
+      setDarkMode(true);
+      setTheme('dark')
+      return;
+    }else{
+      setTheme('light');
+      setDarkMode(false);
+      return;
+    }
+  }
+  setDevice(false);
+  },[colorScheme,device])
   // const registerForPushNotificationsAsync = async () => {
   //   // let token;
   //   // if (Device.isDevice) {
@@ -167,6 +202,24 @@ export default function Home() {
   //   // }
   //   // return token;
   // };
+
+  
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", async() => {
+    await AsyncStorage.setItem("@Themes", JSON.stringify( {
+          theme,
+          darkMode,
+          device
+        })
+        )
+    BackHandler.exitApp();
+    })
+      
+      
+      
+      //console.log("themes/state saved");
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -238,12 +291,14 @@ export default function Home() {
             </View>
           ) : (
             <TodosList
+            theme={theme}
               todosData={todos.filter((todo) =>
                 moment
                   .utc(moment(todo.hour))
                   .local()
                   .isSame(moment().utc().local(), "day")
               )}
+            
             />
           )}
           {/* Tomorrow section  */}
@@ -283,12 +338,14 @@ export default function Home() {
             </View>
           ) : (
             <TodosList
+            theme={theme}
               todosData={todos.filter((todo) =>
                 moment
                   .utc(moment(todo.hour))
                   .local()
                   .isAfter(moment().utc().local(), "day")
               )}
+              
             />
           )}
           <TouchableOpacity
@@ -336,7 +393,7 @@ export default function Home() {
                 }, {borderBottomColor: theme === 'light' ? "gray" : theme === 'dark' ? "white" : "#FFFFFF80"}]}
               />
               <Text style={[styles.modalTitle, { width: "100%" }, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Theme</Text>
-              <Pressable style={styles.row} onPress={() => {setTheme("dim")}}>
+              <Pressable style={styles.row} onPress={async() => {await setTheme("dim")}}>
                 <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Dim</Text>
                 {theme === "dim" ? (
                   <AntDesign name="checkcircle" size={24} color="#4A98E9" />
