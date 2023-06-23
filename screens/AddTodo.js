@@ -8,7 +8,7 @@ import {
   Platform,
   StatusBar,
 } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import { addTodoReducer } from "../redux/todosSlice";
@@ -17,7 +17,8 @@ import { useNavigation } from "@react-navigation/native";
 import { TimePickerModal } from "react-native-paper-dates";
 import { scheduleNotificationAsync } from "expo-notifications";
 
-export default function AddTodo() {
+export default function AddTodo({route}) {
+  
   const [name, setName] = useState("");
   const [date, setDate] = useState();
   const [isToday, setIsToday] = useState(false);
@@ -85,34 +86,35 @@ export default function AddTodo() {
     }
   };
 
+  const theme = route.params.theme;
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Task</Text>
+    <View style={[styles.container, {backgroundColor: theme === 'light' ? "white" : theme === 'dark' ? "black" : "#283d5e"}]}>
+      <Text style={[styles.title, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Add Task</Text>
       <View style={styles.inputContainer}>
-        <Text style={styles.inputTitle}>Name</Text>
+        <Text style={[styles.inputTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Name</Text>
         <TextInput
-          style={styles.textInput}
+          style={[styles.textInput, {borderBottomColor: theme === 'light' ? "#00000060" : theme === 'dark' ? "#ffffff70" : "#ffffff70"}, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}
           placeholder="Task"
-          placeholderTextColor="#00000030"
+          placeholderTextColor={theme === 'light' ? "#00000060" : theme === 'dark' ? "#ffffff60" : "#ffffff60"}
           onChangeText={(text) => setName(text)}
         />
       </View>
       <View style={styles.inputContainer}>
-        <Text style={styles.inputTitle}>Hour</Text>
+        <Text style={[styles.inputTitle, {color: theme === 'light' ? "#000000" : theme === 'dark' ? "#ffffff" : "#ffffff"}]}>Hour</Text>
         {!visible && !date && (
           <TouchableOpacity
             style={{
-              backgroundColor: "#000",
+              backgroundColor: theme === 'light' ? "black" : theme === 'dark' ? "white" : "gray",
               alignItems: "center",
               justifyContent: "center",
               height: 40,
               paddingHorizontal: 10,
               borderRadius: 5,
-              backgroundColor: "#000000",
+              
             }}
             onPress={() => setVisible(true)}
           >
-            <Text style={{ color: "#fff" }}>Set Time</Text>
+            <Text style={{color: theme === 'light' ? "white" : theme === 'dark' ? "black" : "white"}}>Set Time</Text>
           </TouchableOpacity>
         )}
 
@@ -129,7 +131,7 @@ export default function AddTodo() {
             }}
             onPress={() => setVisible(true)}
           >
-            <Text style={{ color: "#fff" }}>{
+            <Text style={{color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}}>{
 
             date.toLocaleTimeString("en-Us", {
               timeZone: "Asia/Beirut",
@@ -153,8 +155,8 @@ export default function AddTodo() {
       </View>
       <View style={[styles.inputContainer, { alignItems: "center" }]}>
         <View>
-          <Text style={styles.inputTitle}>Today</Text>
-          <Text style={{ color: "#00000060", fontSize: 12, maxWidth: "85%" }}>
+          <Text style={[styles.inputTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Today</Text>
+          <Text style={{ color: theme === 'light' ? "#00000060": theme === 'dark' ? "#ffffff60": "#ffffff60", fontSize: 12, maxWidth: "85%" }}>
             if you disable today, the task will be considered as tomorrow{" "}
           </Text>
         </View>
@@ -163,8 +165,8 @@ export default function AddTodo() {
 
       <View style={[styles.inputContainer, { alignItems: "center" }]}>
         <View>
-          <Text style={styles.inputTitle}>Alert</Text>
-          <Text style={{ color: "#00000060", maxWidth: "85%", fontSize: 12 }}>
+          <Text style={[styles.inputTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF"}]}>Alert</Text>
+          <Text style={{ color: theme === 'light' ? "#00000060": theme === 'dark' ? "#ffffff60": "#ffffff60", maxWidth: "85%", fontSize: 12 }}>
             You will receive an alert at the time you set this reminder
           </Text>
         </View>
@@ -174,8 +176,8 @@ export default function AddTodo() {
         />
       </View>
 
-      <TouchableOpacity onPress={addTodo} style={styles.button}>
-        <Text style={{ color: "white" }}>Done</Text>
+      <TouchableOpacity onPress={addTodo} style={[styles.button, {backgroundColor: theme === 'light' ? "black" : theme === 'dark' ? "white" : "white"}]}>
+        <Text style={{color: theme === 'light' ? "white" : theme === 'dark' ? "#000000" : "#000000"}}>Done</Text>
       </TouchableOpacity>
     </View>
   );

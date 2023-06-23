@@ -127,6 +127,17 @@ export default function Home() {
     // setLocalData(localData.filter((todo) => !todo.isCompleted));
   };
 
+  useEffect(()=>{
+      if(darkMode){
+        setTheme("dark");
+        return;
+      }
+      else{
+        setTheme('light');
+        setDarkMode(false);
+        return;
+      }
+  }, [darkMode])
 
   // const registerForPushNotificationsAsync = async () => {
   //   // let token;
@@ -281,67 +292,68 @@ export default function Home() {
             />
           )}
           <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("Add")}
+            style={[styles.button, {backgroundColor: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#283d3f"}]}
+            onPress={() => navigation.navigate("Add", {theme:theme})}
           >
-            <Text style={styles.plus}>+</Text>
+            <Text style={[styles.plus, {color: theme === 'light' ? "white" : theme === 'dark' ? "#000000" : "#FFFFFF"}]}>+</Text>
           </TouchableOpacity>
 
           <BottomSheetModal
             ref={bottomSheetModalRef}
             index={1}
             snapPoints={snapPoints}
-            backgroundStyle={{ borderRadius: 28 }}
+            backgroundStyle={[{ borderRadius: 28  },{backgroundColor: theme === 'light' ? "white" : theme === 'dark' ? "black" : "#283d5e"}]}
             onDismiss={() => setIsModalOpen(false)}
           >
-            <View style={styles.contentContainer}>
-              <Text style={[styles.modalTitle, { marginBottom: 20 }]}>
+            
+            <View style={[styles.contentContainer, {backgroundColor: theme === 'light' ? "white" : theme === 'dark' ? "black" : "#283d5e"}]}>
+              <Text style={[styles.modalTitle, { marginBottom: 20 }, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>
                 Settings
               </Text>
               <View style={styles.row}>
-                <Text style={styles.modalSubTitle}>Dark Mode</Text>
+                <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Dark Mode</Text>
                 <Switch
-                  value={darkMode}
+                  value={darkMode || theme==='dim'}
                   onChange={() => {
                     setDarkMode(!darkMode);
                   }}
                 />
               </View>
               <View style={styles.row}>
-                <Text style={styles.modalSubTitle}>Use Device Settings</Text>
+                <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Use Device Settings</Text>
                 <Switch value={device} onChange={() => setDevice(!device)} />
               </View>
-              <Text style={styles.description}>
+              <Text style={[styles.description, {color: theme === 'light' ? "#00000070" : theme === 'dark' ? "white" : "#FFFFFF70"}]}>
                 Customize your app experience: Choose between Light and Dark
                 themes or sync with your device settings
               </Text>
               <View
-                style={{
+                style={[{
                   width: width,
                   borderBottomWidth: StyleSheet.hairlineWidth,
                   borderBottomColor: "gray",
                   marginVertical: 30,
-                }}
+                }, {borderBottomColor: theme === 'light' ? "gray" : theme === 'dark' ? "white" : "#FFFFFF80"}]}
               />
-              <Text style={[styles.modalTitle, { width: "100%" }]}>Theme</Text>
-              <Pressable style={styles.row} onPress={() => setTheme("dim")}>
-                <Text style={styles.modalSubTitle}>Dim</Text>
+              <Text style={[styles.modalTitle, { width: "100%" }, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Theme</Text>
+              <Pressable style={styles.row} onPress={() => {setTheme("dim")}}>
+                <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Dim</Text>
                 {theme === "dim" ? (
                   <AntDesign name="checkcircle" size={24} color="#4A98E9" />
                 ) : (
                   <Entypo name="circle" size={24} color="#56636F" />
                 )}
               </Pressable>
-              <Pressable style={styles.row} onPress={() => setTheme("dark")}>
-                <Text style={styles.modalSubTitle}>Dark</Text>
+              <Pressable style={styles.row} onPress={() => {setTheme("dark"); setDarkMode(true)}}>
+                <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Dark</Text>
                 {theme === "dark" ? (
                   <AntDesign name="checkcircle" size={24} color="#4A98E9" />
                 ) : (
                   <Entypo name="circle" size={24} color="#56636F" />
                 )}
               </Pressable>
-              <Pressable style={styles.row} onPress={() => setTheme("light")}>
-                <Text style={styles.modalSubTitle}>Light</Text>
+              <Pressable style={styles.row} onPress={() => {setTheme("light"); setDarkMode(false)}}>
+                <Text style={[styles.modalSubTitle, {color: theme === 'light' ? "black" : theme === 'dark' ? "white" : "#FFFFFF90"}]}>Light</Text>
                 {theme === "light" ? (
                   <AntDesign name="checkcircle" size={24} color="#4A98E9" />
                 ) : (
@@ -396,7 +408,7 @@ const styles = StyleSheet.create({
   plus: {
     fontSize: 38,
     fontWeight: "300",
-    color: "#fff",
+    color: "#ffffff",
     position: "absolute",
     top: -7,
     left: 10,
